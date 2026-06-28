@@ -1,10 +1,12 @@
-# Session 00: Prerequisites And 30-Session Roadmap
+# Session 00: Prerequisites And Roadmap
 
 This is the entry point for the complete Kubernetes guide.
 
 Use this session to prepare the environment, then follow Sessions 01-30 in
-order. Existing hands-on labs have been moved into the new sequence instead of
-being left in the older topic order.
+order. Session 31 adds scenario-driven case studies that combine multiple
+topics after students have learned the building blocks. Existing hands-on labs
+have been moved into the new sequence instead of being left in the older topic
+order.
 
 ## Prerequisites
 
@@ -66,6 +68,7 @@ docker version
 | 28 | Cluster operations | `sessions/28-cluster-operations` | Detailed |
 | 29 | Supply chain and CI/CD | `sessions/29-supply-chain-cicd` | Detailed |
 | 30 | Production capstone | `sessions/30-production-capstone` | Detailed |
+| 31 | Case studies and scenarios | `sessions/31-case-studies` | Ready |
 
 ## Session Format
 
@@ -87,6 +90,8 @@ The order is intentional:
 5. Learn identity, security, secrets, networking, and observability.
 6. Learn packaging, GitOps, policy, operators, mesh, operations, and delivery.
 7. Finish with a capstone that combines the production concerns.
+8. Practice real-world access, operations, and troubleshooting scenarios through
+   case studies.
 
 ## Review Questions
 

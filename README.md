@@ -117,8 +117,10 @@ Start with the roadmap:
 sessions/00-prerequisites-and-roadmap/README.md
 ```
 
-The repository is now organized as a 30-session Kubernetes path. Session 00 is
-the prerequisite and roadmap entry point; Sessions 01-30 are the teaching flow.
+The repository is now organized as a 30-session Kubernetes path plus a
+scenario-driven case study section. Session 00 is the prerequisite and roadmap
+entry point; Sessions 01-30 are the teaching flow, and Session 31 collects
+real-world scenario labs.
 
 | Session | Topic | Guide |
 | --- | --- | --- |
@@ -153,6 +155,7 @@ the prerequisite and roadmap entry point; Sessions 01-30 are the teaching flow.
 | 28 | Cluster operations | `sessions/28-cluster-operations/README.md` |
 | 29 | Supply chain and CI/CD | `sessions/29-supply-chain-cicd/README.md` |
 | 30 | Production capstone | `sessions/30-production-capstone/README.md` |
+| 31 | Case studies and scenarios | `sessions/31-case-studies/README.md` |
 
 Each session now has an ordered guide, sub-session structure, and app-based lab
 examples where the topic can be demonstrated through the training application.

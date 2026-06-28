@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: case-backup-restore
+  labels:
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: backup-and-restore-drill
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-data
+  namespace: case-backup-restore
+  labels:
+    app.kubernetes.io/name: backup-writer
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: backup-and-restore-drill
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backup-writer
+  namespace: case-backup-restore
+  labels:
+    app.kubernetes.io/name: backup-writer
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: backup-and-restore-drill
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backup-writer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backup-writer
+    spec:
+      containers:
+        - name: writer
+          image: public.ecr.aws/docker/library/busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              if [ ! -f /data/restore-marker.txt ]; then
+                date > /data/restore-marker.txt
+                echo "created-by=backup-restore-case" >> /data/restore-marker.txt
+              fi
+              while true; do
+                echo "$(date) heartbeat" >> /data/heartbeat.log
+                sleep 30
+              done
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: backup-data

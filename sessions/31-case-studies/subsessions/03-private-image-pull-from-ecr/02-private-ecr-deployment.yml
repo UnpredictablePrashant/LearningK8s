@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: private-ecr-app
+  namespace: case-ecr-pull
+  labels:
+    app.kubernetes.io/name: private-ecr-app
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: private-image-pull-from-ecr
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: private-ecr-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: private-ecr-app
+    spec:
+      containers:
+        - name: frontend
+          image: REPLACE_WITH_ECR_IMAGE_URI
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: private-ecr-app
+  namespace: case-ecr-pull
+  labels:
+    app.kubernetes.io/name: private-ecr-app
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: private-image-pull-from-ecr
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: private-ecr-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

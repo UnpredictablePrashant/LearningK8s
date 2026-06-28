@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: case-autoscaling
+  labels:
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: autoscaling-under-load
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scale-demo
+  namespace: case-autoscaling
+  labels:
+    app.kubernetes.io/name: scale-demo
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: autoscaling-under-load
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: scale-demo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: scale-demo
+    spec:
+      containers:
+        - name: scale-demo
+          image: registry.k8s.io/hpa-example
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scale-demo
+  namespace: case-autoscaling
+  labels:
+    app.kubernetes.io/name: scale-demo
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: autoscaling-under-load
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: scale-demo
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: case-break-glass-admins-cluster-admin
+  labels:
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: break-glass-admin-access
+subjects:
+  - kind: Group
+    name: REPLACE_WITH_K8S_GROUP
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

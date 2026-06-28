@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: s3-deny-check
+  namespace: case-s3-access
+  labels:
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: pod-access-to-s3
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: s3-deny-check
+    spec:
+      serviceAccountName: s3-client
+      restartPolicy: Never
+      containers:
+        - name: aws-cli
+          image: public.ecr.aws/aws-cli/aws-cli:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_REGION
+              value: REPLACE_WITH_AWS_REGION
+            - name: AWS_DEFAULT_REGION
+              value: REPLACE_WITH_AWS_REGION
+            - name: S3_BUCKET
+              value: REPLACE_WITH_BUCKET_NAME
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+
+              KEY="not-allowed/${HOSTNAME}.txt"
+              echo "Trying to write outside the allowed prefix: s3://${S3_BUCKET}/${KEY}"
+
+              set +e
+              aws s3 cp /etc/hostname "s3://${S3_BUCKET}/${KEY}" >/tmp/deny-output.txt 2>&1
+              STATUS="$?"
+              set -e
+
+              cat /tmp/deny-output.txt
+
+              if [ "${STATUS}" -eq 0 ]; then
+                echo "Unexpected success. The Pod can write outside the allowed prefix."
+                exit 1
+              fi
+
+              grep -E "AccessDenied|Forbidden|not authorized|not authorised" /tmp/deny-output.txt
+              echo "Denied as expected."

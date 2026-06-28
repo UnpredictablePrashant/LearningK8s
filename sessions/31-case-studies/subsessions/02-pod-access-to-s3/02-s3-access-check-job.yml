@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: s3-access-check
+  namespace: case-s3-access
+  labels:
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: pod-access-to-s3
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: s3-access-check
+    spec:
+      serviceAccountName: s3-client
+      restartPolicy: Never
+      containers:
+        - name: aws-cli
+          image: public.ecr.aws/aws-cli/aws-cli:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_REGION
+              value: REPLACE_WITH_AWS_REGION
+            - name: AWS_DEFAULT_REGION
+              value: REPLACE_WITH_AWS_REGION
+            - name: S3_BUCKET
+              value: REPLACE_WITH_BUCKET_NAME
+            - name: S3_PREFIX
+              value: pod-identity-check
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+
+              echo "Checking the AWS identity used by this Pod"
+              aws sts get-caller-identity
+
+              KEY="${S3_PREFIX}/${HOSTNAME}.txt"
+              printf "S3 Pod Identity check from %s\n" "${HOSTNAME}" > /tmp/check.txt
+
+              echo "Writing s3://${S3_BUCKET}/${KEY}"
+              aws s3 cp /tmp/check.txt "s3://${S3_BUCKET}/${KEY}"
+
+              echo "Listing s3://${S3_BUCKET}/${S3_PREFIX}/"
+              aws s3 ls "s3://${S3_BUCKET}/${S3_PREFIX}/"
+
+              echo "Reading s3://${S3_BUCKET}/${KEY}"
+              aws s3 cp "s3://${S3_BUCKET}/${KEY}" -

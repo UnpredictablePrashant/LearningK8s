@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-board-native-sidecar
+  namespace: lifecycle-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-board-native-sidecar
+  template:
+    metadata:
+      labels:
+        app: message-board-native-sidecar
+    spec:
+      initContainers:
+        - name: native-log-shipper
+          image: busybox:1.36
+          restartPolicy: Always
+          command:
+            - sh
+            - -c
+            - |
+              touch /shared/native-sidecar.ready
+              touch /shared/native-sidecar.log
+              while true; do
+                echo "$(date +%Y-%m-%dT%H:%M:%S%z) native sidecar is running" | tee -a /shared/native-sidecar.log
+                sleep 5
+              done
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -f /shared/native-sidecar.ready
+            failureThreshold: 10
+            periodSeconds: 1
+          volumeMounts:
+            - name: sidecar-shared
+              mountPath: /shared
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+      containers:
+        - name: app
+          image: prashantdey/appk8stutorial:1.0
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URL
+              value: sqlite:////tmp/messages.db
+          volumeMounts:
+            - name: sidecar-shared
+              mountPath: /shared
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: sidecar-shared
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-board-native-sidecar
+  namespace: lifecycle-lab
+spec:
+  selector:
+    app: message-board-native-sidecar
+  ports:
+    - port: 80
+      targetPort: 5000

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: case-ecr-pull
+  labels:
+    training.k8s.io/session: "31"
+    training.k8s.io/case-study: private-image-pull-from-ecr

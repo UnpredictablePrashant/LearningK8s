@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quota-burst
+  namespace: case-tenant-a
+  labels:
+    app.kubernetes.io/name: quota-burst
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quota-burst
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: quota-burst
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"

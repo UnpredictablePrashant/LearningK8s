@@ -33,6 +33,8 @@ Pod starts
 
 - Add readiness and liveness probes to the Flask Deployment.
 - Add an init container that waits for PostgreSQL DNS.
+- Add a sidecar that probes the app over localhost and writes to a shared
+  `emptyDir` volume.
 - Add a `preStop` hook and observe termination events.
 - Break a liveness endpoint and watch Kubernetes restart the container.
 
